@@ -13,17 +13,13 @@ export default function ClassSelect() {
   const selectClassStore = useGameStore((state) => state.selectClass);
   const createClassStore = useGameStore((state) => state.createClass);
 
-  const mockClasses: Class[] = [
-    { grade: '1', section: 'C', createdAt: new Date('2024-05-10T10:00:00Z').toISOString() },
-    { grade: '2', section: 'F', createdAt: new Date('2024-05-09T14:30:00Z').toISOString() },
-    { grade: '4', section: 'A', createdAt: new Date('2024-05-08T09:15:00Z').toISOString() },
-    { grade: '2', section: 'C', createdAt: new Date('2024-05-07T11:45:00Z').toISOString() },
-    { grade: '1', section: 'G', createdAt: new Date('2024-05-06T16:20:00Z').toISOString() },
-    { grade: '3', section: 'E', createdAt: new Date('2024-05-05T13:10:00Z').toISOString() },
-  ];
-
-  // Prioritizing mock data for now as per user request to avoid backend confusion
-  const displayClasses = mockClasses;
+  const displayClasses = (teacher?.classes && teacher.classes.length > 0) 
+    ? teacher.classes 
+    : [
+        { grade: 1, section: 'C', createdAt: new Date('2024-05-10T10:00:00Z').getTime(), students: [] },
+        { grade: 2, section: 'F', createdAt: new Date('2024-05-09T14:30:00Z').getTime(), students: [] },
+        { grade: 4, section: 'A', createdAt: new Date('2024-05-08T09:15:00Z').getTime(), students: [] },
+      ];
 
   const [mode, setMode] = useState<'list' | 'create'>('list');
   const [selectedExisting, setSelectedExisting] = useState<Class | null>(

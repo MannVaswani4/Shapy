@@ -69,7 +69,7 @@ export default function Login() {
   const glowTransition = {
     duration: 3,
     repeat: Infinity,
-    ease: "easeInOut"
+    ease: "easeInOut" as const
   };
 
   const Hexagon = ({ active, error }: { active: boolean, error: boolean }) => (

@@ -14,7 +14,7 @@ export default function PlayerSelect() {
   const setupGame = useGameStore((state) => state.setupGame);
 
   const currentClass = teacher?.classes?.find(
-    (c) => c.grade == selectedClass?.grade && c.section == selectedClass?.section
+    (c) => c.grade === selectedClass?.grade && c.section === selectedClass?.section
   );
 
   const students = currentClass?.students || [];

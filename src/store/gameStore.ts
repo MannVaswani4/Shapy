@@ -21,6 +21,7 @@ export interface Class {
 export interface Teacher {
   id: string;
   name: string;
+  photoURL?: string;
   classes: Class[];
 }
 
@@ -94,6 +95,7 @@ interface GameState {
   missedCount: number;
   misses: number;
   playerScores: Record<string, number>; // studentId -> score
+  score: number;
   placements: PlacedShape[];
 
   // Session Actions
@@ -105,7 +107,8 @@ interface GameState {
   placeShape: (placement: Omit<PlacedShape, 'id'>) => void;
   resetSession: () => void;
   initializeStore: () => void;
-  updateScore: (points: number) => void;
+  updateScore: (points: number, playerId?: string) => void;
+  updateTeacherName: (name: string) => void;
   finishGameSession: () => void;
   resetGameSession: () => void;
 }
@@ -149,11 +152,19 @@ export const useGameStore = create<GameState>()(
 
       teacher: null,
       selectedClass: null,
+      selectedPlayerIds: [],
+      difficulty: 'Easy',
+      activePlayerIndex: 0,
+      referenceTargets: [],
+      collectedShapes: [],
+      missedCount: 0,
+      misses: 0,
+      playerScores: {},
+      score: 0,
+      placements: [],
 
       loginTeacher: (email, password) => {
-        // Validation check for requested credentials
         if (email === 'pranayaTest@gmail.com' && password === 'test-password') {
-          // Initialize default premium mock classes for the specific user
           const initialClasses: Class[] = [
             {
               grade: 1,
@@ -168,6 +179,26 @@ export const useGameStore = create<GameState>()(
                 { id: 's6', name: 'Mira', shape: 'hexagon', color: 'red' },
               ],
             },
+            {
+              grade: 2,
+              section: 'A',
+              createdAt: Date.now() - 43200000,
+              students: [
+                { id: 's21', name: 'Kabir', shape: 'circle', color: 'red' },
+                { id: 's22', name: 'Ishani', shape: 'star', color: 'blue' },
+                { id: 's23', name: 'Vihaan', shape: 'hexagon', color: 'green' },
+                { id: 's24', name: 'Ananya', shape: 'square', color: 'yellow' },
+              ],
+            },
+            {
+              grade: 3,
+              section: 'B',
+              createdAt: Date.now() - 21600000,
+              students: [
+                { id: 's31', name: 'Arjun', shape: 'triangle', color: 'purple' },
+                { id: 's32', name: 'Saanvi', shape: 'rectangle', color: 'orange' },
+              ],
+            },
           ];
           set({
             teacher: {
@@ -180,7 +211,6 @@ export const useGameStore = create<GameState>()(
           return true;
         }
         
-        // Fallback for simple "Name" entry if needed for legacy demo, but we prioritize the new credentials
         if (email && !password) {
           set({
             teacher: {
@@ -197,11 +227,23 @@ export const useGameStore = create<GameState>()(
       },
 
       loginWithGoogle: (name, email, photoURL) => {
+        // Give new Google users a starter class so the app isn't empty
+        const starterClass: Class = {
+          grade: 1,
+          section: 'A',
+          createdAt: Date.now(),
+          students: [
+            { id: `g-s1-${Date.now()}`, name: 'Sample Student 1', shape: 'circle', color: 'red' },
+            { id: `g-s2-${Date.now()}`, name: 'Sample Student 2', shape: 'star', color: 'yellow' },
+          ],
+        };
+
         set({
           teacher: {
             id: `t-google-${email}`,
             name: name,
-            classes: [], // Start fresh for Google users
+            photoURL: photoURL || undefined,
+            classes: [starterClass],
           },
           phase: 'welcome',
         });
@@ -344,16 +386,6 @@ export const useGameStore = create<GameState>()(
         });
       },
 
-      // Session Defaults
-      selectedPlayerIds: [],
-      difficulty: 'Easy',
-      activePlayerIndex: 0,
-      referenceTargets: [],
-      collectedShapes: [],
-      missedCount: 0,
-      misses: 0,
-      score: 0,
-      placements: [],
 
       setupGame: (playerIds, difficulty) => {
         const { teacher, selectedClass } = get();
@@ -481,6 +513,15 @@ export const useGameStore = create<GameState>()(
           }
         }
         set({ score: total, playerScores: pScores });
+      },
+
+      updateTeacherName: (name) => {
+        const { teacher } = get();
+        if (teacher) {
+          set({
+            teacher: { ...teacher, name }
+          });
+        }
       },
 
       finishGameSession: () => {

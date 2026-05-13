@@ -91,7 +91,7 @@ export default function Results() {
         <div className="w-full flex items-end justify-center gap-4 mt-28 mb-8 h-[240px]">
            {podiumOrder.map((s, idx) => {
              const rankData = getRankData(s.rank);
-             const meta = COLOR_MAP[s.color as any] || COLOR_MAP.red;
+             const meta = (COLOR_MAP as any)[s.color || 'red'] || COLOR_MAP.red;
              
              return (
                <motion.div

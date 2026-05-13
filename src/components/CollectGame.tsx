@@ -42,8 +42,8 @@ export default function CollectGame() {
   const [feedbackBurst, setFeedbackBurst] = useState<{ id: string; text: string; color: string } | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const requestRef = useRef<number>();
-  const lastTimeRef = useRef<number>();
+  const requestRef = useRef<number | null>(null);
+  const lastTimeRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!activeStudent) return;
@@ -89,7 +89,7 @@ export default function CollectGame() {
   }, [activeStudent, difficulty]);
 
   const animate = (time: number) => {
-    if (lastTimeRef.current !== undefined) {
+    if (lastTimeRef.current !== null) {
       const dt = Math.min((time - lastTimeRef.current) / 16, 2);
       setSpawnedShapes(prev => prev.map(s => {
         if (s.isDragging) return s;

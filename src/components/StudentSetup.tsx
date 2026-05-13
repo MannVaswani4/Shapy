@@ -16,7 +16,7 @@ export default function StudentSetup() {
   const removeStudent = useGameStore((state) => state.removeStudent);
 
   const currentClass = teacher?.classes?.find(
-    (c) => c.grade == selectedClass?.grade && c.section == selectedClass?.section
+    (c) => c.grade === selectedClass?.grade && c.section === selectedClass?.section
   );
 
   const students = currentClass?.students || [];
