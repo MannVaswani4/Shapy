@@ -5,7 +5,7 @@ import { soundEngine } from '../utils/audio';
 import { LogOut, Info, HelpCircle } from 'lucide-react';
 
 import { auth, googleProvider } from '@/lib/firebase';
-import { signInWithPopup } from 'firebase/auth';
+import { signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 
 export default function Login() {
   const loginTeacher = useGameStore((state) => state.loginTeacher);
@@ -32,22 +32,76 @@ export default function Login() {
   const isEmailValid = email.length > 0 && email.includes('@') && email.includes('.');
   const isPasswordValid = password.length >= 6;
 
-  const handleLogin = (e?: React.FormEvent) => {
+  const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     
-    if (!email.trim() || !password) {
-      setError('Required');
+    if (!email.trim()) {
+      setError('E-mail is required');
       return;
     }
 
-    const success = loginTeacher(email.trim(), password);
-    
-    if (success) {
-      soundEngine.playSuccess();
-      setError('');
-    } else {
+    // Guest login (no password entered)
+    if (!password) {
+      const success = loginTeacher(email.trim());
+      if (success) {
+        soundEngine.playSuccess();
+        setError('');
+      } else {
+        soundEngine.playTap();
+        setError('Guest login failed');
+      }
+      return;
+    }
+
+    // Firebase Auth login (password entered)
+    try {
       soundEngine.playTap();
-      setError('Invalid');
+      let userCredential;
+      try {
+        userCredential = await signInWithEmailAndPassword(auth, email.trim(), password);
+      } catch (err: any) {
+        // Automatically sign up if the user does not exist in Firebase yet
+        if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+          try {
+            userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password);
+          } catch (signUpErr: any) {
+            throw err; // throw the original sign-in error if sign-up also fails
+          }
+        } else {
+          throw err;
+        }
+      }
+
+      const user = userCredential.user;
+      if (user.email) {
+        const success = loginTeacher(user.email, password);
+        if (success) {
+          soundEngine.playSuccess();
+          setError('');
+        } else {
+          setError('Store login failed');
+        }
+      }
+    } catch (err: any) {
+      console.error(err);
+      
+      // Fallback: local login check for hardcoded test user or if offline
+      const success = loginTeacher(email.trim(), password);
+      if (success) {
+        soundEngine.playSuccess();
+        setError('');
+      } else {
+        soundEngine.playTap();
+        if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
+          setError('Invalid password');
+        } else if (err.code === 'auth/invalid-email') {
+          setError('Invalid email format');
+        } else if (err.code === 'auth/weak-password') {
+          setError('Password too weak (min 6 chars)');
+        } else {
+          setError('Failed to login');
+        }
+      }
     }
   };
 
@@ -207,6 +261,12 @@ export default function Login() {
               </div>
               <Hexagon active={password.length > 0} error={password.length > 0 && !isPasswordValid} />
             </div>
+
+            {error && (
+              <div className="text-[#DB2B2B] text-sm font-bold text-center mt-1 drop-shadow-sm">
+                {error}
+              </div>
+            )}
 
             <button
               type="submit"

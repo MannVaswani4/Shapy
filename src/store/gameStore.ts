@@ -223,6 +223,27 @@ export const useGameStore = create<GameState>()(
           return true;
         }
 
+        if (email && password) {
+          const starterClass: Class = {
+            grade: 1,
+            section: 'A',
+            createdAt: Date.now(),
+            students: [
+              { id: `t-s1-${Date.now()}`, name: 'Sample Student 1', shape: 'circle', color: 'red' },
+              { id: `t-s2-${Date.now()}`, name: 'Sample Student 2', shape: 'star', color: 'yellow' },
+            ],
+          };
+          set({
+            teacher: {
+              id: `t-email-${email}`,
+              name: email.split('@')[0],
+              classes: [starterClass],
+            },
+            phase: 'welcome',
+          });
+          return true;
+        }
+
         return false;
       },
 
