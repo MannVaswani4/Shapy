@@ -187,7 +187,7 @@ export default function CollectGame() {
           );
         })}
       </div>
-      <div className="absolute bottom-8 left-1/2 -translate-x-12 z-20 w-[240px] pointer-events-none flex justify-center">
+      <div className="absolute bottom-8 left-1/2 -translate-x-40 z-20 w-[340px] pointer-events-none flex justify-center">
          <img src="/assets/backgrounds/Basket.png" alt="Basket" className="w-full h-auto drop-shadow-2xl" />
          <AnimatePresence>
             {feedbackBurst && (
