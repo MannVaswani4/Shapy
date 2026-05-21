@@ -113,36 +113,76 @@ interface GameState {
   resetGameSession: () => void;
 }
 
+const SHAPE_COORDINATES: Record<ShapeType, Record<ColorType, { x: number; y: number }>> = {
+  circle: {
+    red: { x: 3.5, y: 37.0 },       // Red circle on left wall
+    orange: { x: 73.8, y: 81.2 },    // Orange circle cushion on blue chair
+    green: { x: 78.5, y: 66.5 },     // Green circle emblem on red suitcase
+    blue: { x: 32.0, y: 16.0 },      // Blue circle on clock frame
+    yellow: { x: 3.5, y: 37.0 },     // Fallback
+    purple: { x: 73.8, y: 81.2 },    // Fallback
+  },
+  square: {
+    green: { x: 32.1, y: 28.2 },     // Green square on wall above arch
+    blue: { x: 24.5, y: 74.3 },      // Blue square emblem on yellow suitcase
+    yellow: { x: 69.0, y: 37.0 },    // Yellow square under Gate A2 sign
+    red: { x: 32.1, y: 28.2 },       // Fallback
+    orange: { x: 24.5, y: 74.3 },    // Fallback
+    purple: { x: 69.0, y: 37.0 },    // Fallback
+  },
+  triangle: {
+    purple: { x: 15.0, y: 42.0 },    // Purple triangle behind TICKETS counter
+    blue: { x: 77.0, y: 54.5 },      // Blue triangle cushion on yellow chair
+    red: { x: 61.3, y: 69.0 },       // Red triangle emblem on green suitcase
+    green: { x: 77.0, y: 54.5 },     // Fallback
+    yellow: { x: 15.0, y: 42.0 },    // Fallback
+    orange: { x: 61.3, y: 69.0 },    // Fallback
+  },
+  hexagon: {
+    yellow: { x: 37.0, y: 65.0 },    // Yellow hexagon emblem on blue planter
+    purple: { x: 61.7, y: 91.0 },    // Purple hexagon block on floor
+    red: { x: 37.0, y: 65.0 },       // Fallback
+    blue: { x: 61.7, y: 91.0 },      // Fallback
+    green: { x: 37.0, y: 65.0 },     // Fallback
+    orange: { x: 61.7, y: 91.0 },    // Fallback
+  },
+  star: {
+    purple: { x: 90.0, y: 36.0 },    // Purple star decoration on right window
+    yellow: { x: 56.5, y: 54.7 },    // Yellow star on snacks stand counter
+    red: { x: 90.0, y: 36.0 },       // Fallback
+    blue: { x: 56.5, y: 54.7 },      // Fallback
+    green: { x: 90.0, y: 36.0 },     // Fallback
+    orange: { x: 56.5, y: 54.7 },    // Fallback
+  },
+  rectangle: {
+    red: { x: 18.9, y: 87.0 },       // Red rectangle block on floor
+    blue: { x: 18.9, y: 87.0 },      // Fallback
+    green: { x: 18.9, y: 87.0 },     // Fallback
+    yellow: { x: 18.9, y: 87.0 },    // Fallback
+    orange: { x: 18.9, y: 87.0 },    // Fallback
+    purple: { x: 18.9, y: 87.0 },    // Fallback
+  }
+};
+
 // Helper to generate reference target placements for the Memorize/Reconstruct phase
 const generateReferenceTargets = (students: Student[], playerIds: string[]): ReferenceTarget[] => {
   const selectedStudents = students.filter(s => playerIds.includes(s.id));
-  
-  const SHAPE_ROWS: Record<string, number> = {
-    square: 25,
-    triangle: 35,
-    circle: 45,
-    hexagon: 55,
-    rectangle: 65,
-    star: 75
-  };
 
-  const COLOR_COLS: Record<string, number> = {
-    red: 25,
-    orange: 35,
-    yellow: 45,
-    green: 55,
-    blue: 65,
-    purple: 75
-  };
-
-  return selectedStudents.map((student, idx) => ({
-    id: `ref-${student.id}-${idx}`,
-    shape: student.shape,
-    color: student.color,
-    x: COLOR_COLS[student.color] || 50,
-    y: SHAPE_ROWS[student.shape] || 50,
-  }));
+  return selectedStudents.map((student, idx) => {
+    const coords = SHAPE_COORDINATES[student.shape]?.[student.color] || { x: 50, y: 50 };
+    
+    // Add small offset to prevent overlap if duplicate shapes are in the game
+    const offset = idx * 2.5 - 2.5;
+    return {
+      id: `ref-${student.id}-${idx}`,
+      shape: student.shape,
+      color: student.color,
+      x: coords.x + (idx > 0 ? offset : 0),
+      y: coords.y + (idx > 0 ? offset : 0),
+    };
+  });
 };
+
 
 export const useGameStore = create<GameState>()(
   persist(

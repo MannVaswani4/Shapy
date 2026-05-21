@@ -63,7 +63,7 @@ export default function Memorize() {
       {/* Main Image Container */}
       <div className="relative z-10 w-full max-w-2xl aspect-[16/10] rounded-[48px] border-8 border-white shadow-2xl overflow-hidden flex items-center justify-center">
         <img 
-          src="/assets/backgrounds/MemoriseImg1.png" 
+          src="/assets/backgrounds/MemoriseImg2.jpeg" 
           alt="Memorize" 
           className="absolute inset-0 w-full h-full object-fill opacity-90"
         />

@@ -203,7 +203,7 @@ export default function Reconstruct() {
           ref={playAreaRef}
           className="relative w-full max-w-2xl aspect-[16/10] rounded-[48px] overflow-hidden border-8 border-white shadow-[0_40px_80px_rgba(0,0,0,0.7)] bg-slate-900"
         >
-          <img src="/assets/backgrounds/MemoriseImg1.png" alt="Target" className="absolute inset-0 w-full h-full object-fill opacity-70" />
+          <img src="/assets/backgrounds/MemoriseImg2.jpeg" alt="Target" className="absolute inset-0 w-full h-full object-fill opacity-70" />
 
           {referenceTargets.map((target) => {
             const placedInfo = placedTargets.find((pt) => pt.id === target.id);
@@ -211,7 +211,7 @@ export default function Reconstruct() {
             return (
               <div
                 key={target.id}
-                className={`absolute flex items-center justify-center rounded-2xl border-4 transition-all duration-500 ${isFilled ? 'border-emerald-400 bg-emerald-500/10 shadow-[0_0_30px_rgba(16,185,129,0.5)] scale-105' : 'border-dashed border-white/40 bg-black/20'}`}
+                className={`absolute flex items-center justify-center rounded-2xl border-4 transition-all duration-500 ${isFilled ? 'border-emerald-400 bg-emerald-500/10 shadow-[0_0_30px_rgba(16,185,129,0.5)] scale-105' : 'border-dashed border-amber-400 bg-black/50 shadow-[0_0_20px_rgba(0,0,0,0.8)]'}`}
                 style={{ left: `${target.x}%`, top: `${target.y}%`, width: '80px', height: '80px', transform: 'translate(-50%, -50%)' }}
               >
                 {isFilled && (
