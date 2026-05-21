@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { db } from '../lib/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 export type ShapeType = 'circle' | 'square' | 'triangle' | 'rectangle' | 'star' | 'hexagon';
 export type ColorType = 'red' | 'blue' | 'green' | 'yellow' | 'orange' | 'purple';
@@ -204,19 +206,24 @@ export const useGameStore = create<GameState>()(
       placements: [],
 
       loginTeacher: (email, password) => {
-        if (email === 'pranayaTest@gmail.com' && password === 'test-password') {
-          const initialClasses: Class[] = [
+        // ─── Pranaya test account ────────────────────────────────────────────────
+        if (
+          email.toLowerCase() === 'pranayatest@gmail.com' &&
+          password === 'test-password'
+        ) {
+          // Hardcoded fallback used while Firestore API is warming up
+          const FALLBACK_CLASSES: Class[] = [
             {
               grade: 1,
               section: 'C',
               createdAt: Date.now() - 86400000,
               students: [
-                { id: 's1', name: 'Tushar', shape: 'square', color: 'orange' },
-                { id: 's2', name: 'Aarohi', shape: 'circle', color: 'green' },
-                { id: 's3', name: 'Adhya', shape: 'triangle', color: 'blue' },
+                { id: 's1', name: 'Tushar',  shape: 'square',    color: 'orange' },
+                { id: 's2', name: 'Aarohi',  shape: 'circle',    color: 'green'  },
+                { id: 's3', name: 'Adhya',   shape: 'triangle',  color: 'blue'   },
                 { id: 's4', name: 'Shrikar', shape: 'rectangle', color: 'purple' },
-                { id: 's5', name: 'Rohan', shape: 'star', color: 'yellow' },
-                { id: 's6', name: 'Mira', shape: 'hexagon', color: 'red' },
+                { id: 's5', name: 'Rohan',   shape: 'star',      color: 'yellow' },
+                { id: 's6', name: 'Mira',    shape: 'hexagon',   color: 'red'    },
               ],
             },
             {
@@ -224,10 +231,12 @@ export const useGameStore = create<GameState>()(
               section: 'A',
               createdAt: Date.now() - 43200000,
               students: [
-                { id: 's21', name: 'Kabir', shape: 'circle', color: 'red' },
-                { id: 's22', name: 'Ishani', shape: 'star', color: 'blue' },
-                { id: 's23', name: 'Vihaan', shape: 'hexagon', color: 'green' },
-                { id: 's24', name: 'Ananya', shape: 'square', color: 'yellow' },
+                { id: 's21', name: 'Kabir',  shape: 'circle',    color: 'red'    },
+                { id: 's22', name: 'Ishani', shape: 'star',      color: 'blue'   },
+                { id: 's23', name: 'Vihaan', shape: 'hexagon',   color: 'green'  },
+                { id: 's24', name: 'Ananya', shape: 'square',    color: 'yellow' },
+                { id: 's25', name: 'Dev',    shape: 'triangle',  color: 'orange' },
+                { id: 's26', name: 'Riya',   shape: 'rectangle', color: 'purple' },
               ],
             },
             {
@@ -235,19 +244,60 @@ export const useGameStore = create<GameState>()(
               section: 'B',
               createdAt: Date.now() - 21600000,
               students: [
-                { id: 's31', name: 'Arjun', shape: 'triangle', color: 'purple' },
+                { id: 's31', name: 'Arjun',  shape: 'triangle',  color: 'purple' },
                 { id: 's32', name: 'Saanvi', shape: 'rectangle', color: 'orange' },
+                { id: 's33', name: 'Neel',   shape: 'star',      color: 'red'    },
+                { id: 's34', name: 'Prisha', shape: 'circle',    color: 'blue'   },
+              ],
+            },
+            {
+              grade: 4,
+              section: 'A',
+              createdAt: Date.now() - 10800000,
+              students: [
+                { id: 's41', name: 'Aditya', shape: 'hexagon',   color: 'green'  },
+                { id: 's42', name: 'Myra',   shape: 'square',    color: 'purple' },
+                { id: 's43', name: 'Dhruv',  shape: 'circle',    color: 'orange' },
+                { id: 's44', name: 'Tanvi',  shape: 'star',      color: 'blue'   },
+                { id: 's45', name: 'Yuvan',  shape: 'triangle',  color: 'yellow' },
+                { id: 's46', name: 'Zara',   shape: 'rectangle', color: 'red'    },
               ],
             },
           ];
+
+          // Set state immediately with fallback so the UI doesn't hang
           set({
-            teacher: {
-              id: 't-premium',
-              name: 'Pranaya Miss',
-              classes: initialClasses,
-            },
+            teacher: { id: 't-pranaya', name: 'Pranaya Miss', classes: FALLBACK_CLASSES },
             phase: 'welcome',
           });
+
+          // Attempt to load richer/live data from Firestore in the background
+          const docId = email.toLowerCase().replace(/[@.]/g, '_');
+          getDoc(doc(db, 'teachers', docId))
+            .then((snap) => {
+              if (snap.exists()) {
+                const data = snap.data() as { name: string; id: string; classes: Class[] };
+                set((state) => ({
+                  teacher: {
+                    ...state.teacher!,
+                    id: data.id || 't-pranaya',
+                    name: data.name || 'Pranaya Miss',
+                    classes: data.classes || FALLBACK_CLASSES,
+                  },
+                }));
+                console.log('[Shapy] Loaded teacher data from Firestore ✅');
+              } else {
+                // Doc doesn't exist yet — write the fallback data so future logins fetch it
+                setDoc(doc(db, 'teachers', docId), {
+                  id: 't-pranaya',
+                  name: 'Pranaya Miss',
+                  email: email.toLowerCase(),
+                  classes: FALLBACK_CLASSES,
+                }).then(() => console.log('[Shapy] Seeded teacher doc to Firestore ✅'));
+              }
+            })
+            .catch((err) => console.warn('[Shapy] Firestore unavailable, using fallback data:', err.message));
+
           return true;
         }
         

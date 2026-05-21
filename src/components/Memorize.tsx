@@ -53,50 +53,54 @@ export default function Memorize() {
         background: 'linear-gradient(135deg, #4a3ec4 0%, #3730a3 40%, #2d2690 100%)',
       }}
     >
-      {/* Header Section */}
-      <div className="relative z-10 w-full px-12 pt-32 pb-8 flex flex-col items-center">
+      {/* Header */}
+      <div className="relative z-10 w-full px-12 pt-10 pb-4 flex flex-col items-center shrink-0">
         <h1 className="text-white font-chicalo text-5xl tracking-widest uppercase text-center">
           Memorise the image
         </h1>
       </div>
 
-      {/* Main Image Container */}
-      <div className="relative z-10 w-full max-w-2xl aspect-[16/10] rounded-[48px] border-8 border-white shadow-2xl overflow-hidden flex items-center justify-center">
-        <img 
-          src="/assets/backgrounds/MemoriseImg2.jpeg" 
-          alt="Memorize" 
-          className="absolute inset-0 w-full h-full object-fill opacity-90"
-        />
-        
-        {/* Overlaying Shapes */}
-        <div className="absolute inset-0">
-          {referenceTargets.map((target) => {
-            const meta = COLOR_MAP[target.color];
-            return (
-              <motion.div
-                key={target.id}
-                className="absolute flex items-center justify-center"
-                style={{
-                  left: `${target.x}%`,
-                  top: `${target.y}%`,
-                  transform: 'translate(-50%, -50%)',
-                }}
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: [1, 1.1, 1], opacity: 1 }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <div 
-                  dangerouslySetInnerHTML={{ __html: renderShapeSvg(target.shape, meta.hex, 64) }}
-                  className="drop-shadow-md"
-                />
-              </motion.div>
-            );
-          })}
+      {/* Image container — identical markup to Reconstruct's play area */}
+      <div className="flex-1 flex items-center justify-center w-full px-4 relative z-10">
+        <div
+          className="relative w-full max-w-2xl aspect-[16/10] rounded-[48px] overflow-hidden border-8 border-white shadow-[0_40px_80px_rgba(0,0,0,0.7)] bg-slate-900"
+        >
+          <img 
+            src="/assets/backgrounds/MemoriseImg2.jpeg" 
+            alt="Memorize" 
+            className="absolute inset-0 w-full h-full object-fill opacity-90"
+          />
+
+          {/* Overlaying Shapes — same size (56px) and centering as Reconstruct */}
+          <div className="absolute inset-0">
+            {referenceTargets.map((target) => {
+              const meta = COLOR_MAP[target.color];
+              return (
+                <motion.div
+                  key={target.id}
+                  className="absolute flex items-center justify-center"
+                  style={{
+                    left: `${target.x}%`,
+                    top: `${target.y}%`,
+                    transform: 'translate(-50%, -50%)',
+                  }}
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: [1, 1.08, 1], opacity: 1 }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <div 
+                    dangerouslySetInnerHTML={{ __html: renderShapeSvg(target.shape, meta.hex, 56) }}
+                    className={`drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)] ${meta.glow}`}
+                  />
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Minimalistic Timer (Bottom Right) */}
-      <div className="absolute bottom-12 right-12 z-20">
+      {/* Timer (Bottom Right) */}
+      <div className="absolute bottom-10 right-10 z-20 shrink-0">
         <div className="relative w-24 h-24 flex items-center justify-center">
           <svg className="absolute inset-0 w-full h-full -rotate-90">
              <circle 
