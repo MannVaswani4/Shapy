@@ -97,7 +97,7 @@ export default function Countdown() {
             className="absolute inset-0 flex items-center justify-center text-center"
           >
             <h1 
-              className="text-9xl md:text-[12rem] font-black tracking-tighter text-amber-400 drop-shadow-[0_20px_50px_rgba(251,191,36,0.6)]"
+              className="font-chicalo text-8xl md:text-[12rem] tracking-tighter text-amber-400 drop-shadow-[0_20px_50px_rgba(251,191,36,0.6)]"
               style={{
                 WebkitTextStroke: '6px #ffffff',
                 textShadow: '0 10px 0 #ea580c, 0 25px 35px rgba(0,0,0,0.8)',
