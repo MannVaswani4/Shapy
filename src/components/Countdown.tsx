@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
 import { soundEngine } from '../utils/audio';
@@ -24,30 +24,46 @@ export default function Countdown() {
   const activePlayerId = selectedPlayerIds[activePlayerIndex];
   const activeStudent = currentClass?.students?.find((s) => s.id === activePlayerId);
 
+  // Keep a ref to the interval so we can clear it from anywhere
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Tick the counter — state updater only returns the next index, no side-effects
   useEffect(() => {
     soundEngine.playCountdown();
 
-    const interval = setInterval(() => {
+    intervalRef.current = setInterval(() => {
       setStepIndex((prev) => {
         const next = prev + 1;
-        if (next >= STEPS.length) {
-          clearInterval(interval);
-          soundEngine.playVictory();
-          setPhase('collect');
-          return prev;
-        }
-
-        if (STEPS[next] === 'START') {
-          soundEngine.playVictory();
-        } else {
-          soundEngine.playCountdown();
-        }
-        return next;
+        // Clamp at last step; the separate effect below will handle phase change
+        return next < STEPS.length ? next : prev;
       });
     }, 1200);
 
-    return () => clearInterval(interval);
-  }, [setPhase]);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, []); // runs once on mount
+
+  // React to step changes — safe place for sounds and phase transitions
+  useEffect(() => {
+    if (stepIndex === 0) return; // initial mount, already played above
+
+    const currentStep = STEPS[stepIndex];
+
+    if (stepIndex === STEPS.length - 1) {
+      // Last step reached — stop the interval and move to next phase after a beat
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      soundEngine.playVictory();
+      const t = setTimeout(() => setPhase('collect'), 1200);
+      return () => clearTimeout(t);
+    }
+
+    if (currentStep === 'START') {
+      soundEngine.playVictory();
+    } else {
+      soundEngine.playCountdown();
+    }
+  }, [stepIndex, setPhase]);
 
   return (
     <div 
