@@ -187,21 +187,21 @@ export default function CollectGame() {
           );
         })}
       </div>
-      <div className="absolute bottom-8 left-1/2 -translate-x-40 z-20 w-[340px] pointer-events-none flex justify-center">
-         <img src="/assets/backgrounds/Basket.png" alt="Basket" className="w-full h-auto drop-shadow-2xl" />
-         <AnimatePresence>
-            {feedbackBurst && (
-              <motion.div 
-                key={feedbackBurst.id} 
-                initial={{ opacity: 0, y: 20, scale: 0.8 }} 
-                animate={{ opacity: 1, y: -100, scale: 1 }} 
-                exit={{ opacity: 0, scale: 0.5 }} 
-                className={`absolute bottom-full mb-8 left-1/2 -translate-x-[80%] font-chicalo text-2xl uppercase tracking-widest pointer-events-none drop-shadow-md whitespace-nowrap ${feedbackBurst.color}`}
-              >
-                {feedbackBurst.text}
-              </motion.div>
-            )}
-         </AnimatePresence>
+      <div className="absolute bottom-8 left-1/2 -translate-x-40 z-20 w-[340px] pointer-events-none flex flex-col items-center justify-end">
+        <AnimatePresence>
+          {feedbackBurst && (
+            <motion.div 
+              key={feedbackBurst.id} 
+              initial={{ opacity: 0, y: 10, scale: 0.8 }} 
+              animate={{ opacity: 1, y: -16, scale: 1 }} 
+              exit={{ opacity: 0, scale: 0.5 }} 
+              className={`font-chicalo text-2xl uppercase tracking-widest pointer-events-none drop-shadow-md whitespace-nowrap text-center ${feedbackBurst.color}`}
+            >
+              {feedbackBurst.text}
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <img src="/assets/backgrounds/Basket.png" alt="Basket" className="w-full h-auto drop-shadow-2xl" />
       </div>
     </div>
   );
